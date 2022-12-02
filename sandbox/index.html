@@ -41,11 +41,6 @@
                         <label class="form-label">File to verify:&nbsp;</label>
                         <input type="file" id="thd" style="margin-top: -7px;">
                         <div class="row" style="margin-bottom: 97px;"></div>
-                        <form method="get">
-                            <button class=" btn btn-primary shadow" type="submit" value="Submit" id="submit" disabled>
-                                Create Timestamp
-                            </button>
-                        </form>
                         <div class="row" style="margin-bottom: 97px;"></div>
 
 
@@ -60,7 +55,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/script.min.js"></script>
     <script>
-        let hashed_txt;
 
         async function hash(string) {
             const utf8 = new TextEncoder().encode(string);
@@ -85,19 +79,17 @@
         async function fileInputChange(evt) {
             for (let file of evt.target.files) {
                 const txt = await read(file);
-                hashed_txt = await hash(txt);
+                let hashed_txt = await hash(txt);
                 console.log(hashed_txt);
+                sendHash2(hashed_txt)
                 const submit = document.querySelector('#submit');
                 submit.disabled = false;
 
             }
         }
 
-        document.addEventListener("submit", sendHash);
-        function sendHash(e) {
-            e.preventDefault();
 
-
+        async function sendHash2(hash_str) {
             fetch("http://localhost:8000/sendHash/", {
                 method: "POST",
                 headers: {
@@ -108,14 +100,15 @@
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    hash_str: hashed_txt,
+                    hash_str: hash_str,
                 }),
             })
 
-            const submit = document.querySelector('#submit');
-            submit.disabled = true;
+            console.log("Successfully sent hash " + hash_str)
+
 
         }
+
     </script>
 </body>
 
