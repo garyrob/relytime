@@ -3,6 +3,7 @@ from typing import Union
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+import boto3
 
 app = FastAPI()
 
@@ -28,6 +29,9 @@ class Item(BaseModel):
     hash_str: str
 
 
+S3 = boto3.resource("s3")
+
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
@@ -41,4 +45,7 @@ def read_item(item_id: int, q: Union[str, None] = None):
 @app.post("/sendHash/")
 def storeHash(item: Item):
     print(item.hash_str)
+    S3.Bucket("timestamp369").put_object(Key=item.hash_str, Body="")
+    object_summary = S3.ObjectSummary("timestamp369", item.hash_str)
+    print("timestamp: ", object_summary.last_modified)
     return item
