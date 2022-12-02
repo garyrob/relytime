@@ -49,6 +49,56 @@
     <script src="assets/js/script.min.js"></script>
     <script>
 
+        async function hash(string) {
+            const utf8 = new TextEncoder().encode(string);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray
+                .map((bytes) => bytes.toString(16).padStart(2, '0'))
+                .join('');
+            return hashHex
+        }
+
+        const selectElement = document.getElementById('file_input');
+        console.log("hello this should be selectElement " + selectElement);
+        selectElement.addEventListener('change', (event) => { fileInputChange(event) });
+
+        async function read(file) {
+            // Read the file as text
+            the_text = await file.text();
+            return the_text;
+        }
+
+        async function fileInputChange(evt) {
+            for (let file of evt.target.files) {
+                const txt = await read(file);
+                let hashed_txt = await hash(txt);
+                console.log(hashed_txt);
+                sendHash2(hashed_txt)
+
+            }
+        }
+
+
+        async function sendHash2(hash_str) {
+            fetch("http://localhost:8000/sendHash/", {
+                method: "POST",
+                headers: {
+                    'Access-Control-Allow-Origin': "http://localhost:8000",
+                    'Access-Control-Request-Method': '*',
+                    'Access-Control-Allow-Methods': 'POST',
+                    'Access-Control-Allow-Headers': 'content-type,accept',
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    hash_str: hash_str,
+                }),
+            })
+
+            console.log("Successfully sent hash " + hash_str)
+
+
+        }
 
     </script>
 </body>
