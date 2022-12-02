@@ -81,7 +81,7 @@
 
 
         async function sendHash2(hash_str) {
-            fetch("http://localhost:8000/sendHash/", {
+            await fetch("http://localhost:8000/sendHash/", {
                 method: "POST",
                 headers: {
                     'Access-Control-Allow-Origin': "http://localhost:8000",

@@ -49,3 +49,12 @@ def storeHash(item: Item):
     object_summary = S3.ObjectSummary("timestamp369", item.hash_str)
     print("timestamp: ", object_summary.last_modified)
     return item
+
+
+@app.get("/verifyHash/")
+def verifyHash(item: Item):
+    print(item.hash_str)
+    S3.Bucket("timestamp369").get_object(Key=item.hash_str, Body="")
+    object_summary = S3.ObjectSummary("timestamp369", item.hash_str)
+    print("timestamp: ", object_summary.last_modified)
+    return item
