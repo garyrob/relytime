@@ -20,9 +20,9 @@
                     class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="timestamp.html">Timestamp A Document</a></li>
-                    <li class="nav-item"><a class="nav-link" href="integrations.html">Retrieve A Timestamp</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="timestamp.html">Timestamp A Document</a></li>
+                    <li class="nav-item"><a class="nav-link" href="verify.html">Retrieve A Timestamp</a></li>
                     <li class="nav-item"><a class="nav-link" href="pricing.html">Pricing</a></li>
                     <li class="nav-item"><a class="nav-link" href="contacts.html">Contacts</a></li>
                 </ul><a class="btn btn-primary shadow" role="button" href="signup.html">Sign up</a>
@@ -51,7 +51,8 @@
 
         async function hash(string) {
             const utf8 = new TextEncoder().encode(string);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+            # for more file types: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest#converting_a_digest_to_a_hex_string
+                const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray
                 .map((bytes) => bytes.toString(16).padStart(2, '0'))

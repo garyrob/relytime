@@ -1,7 +1,9 @@
 from typing import Union
 
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import (
+    BaseModel,
+)  # https://github.com/pydantic/pydantic/issues/1961#issuecomment-759522422
 from fastapi.middleware.cors import CORSMiddleware
 import boto3
 
@@ -14,6 +16,7 @@ origins = [
     "http://localhost",
     "http://localhost:8001",
     "http://127.0.0.1:8001",
+    "http://127.0.0.1:8001/*",
 ]
 
 app.add_middleware(
@@ -51,10 +54,11 @@ def storeHash(item: Item):
     return item
 
 
-@app.get("/verifyHash/")
-def verifyHash(item: Item):
-    print(item.hash_str)
-    S3.Bucket("timestamp369").get_object(Key=item.hash_str, Body="")
-    object_summary = S3.ObjectSummary("timestamp369", item.hash_str)
+@app.get("/verifyHash/{hash_str}")
+def verifyHash(hash_str) -> Item:
+    print(hash_str)
+    # bucket = S3.Bucket("timestamp369")
+    # bucket.get_key(hash_str)
+    object_summary = S3.ObjectSummary("timestamp369", hash_str)
     print("timestamp: ", object_summary.last_modified)
-    return item
+    return object_summary.last_modified
