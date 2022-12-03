@@ -6,6 +6,9 @@ from pydantic import (
 )  # https://github.com/pydantic/pydantic/issues/1961#issuecomment-759522422
 from fastapi.middleware.cors import CORSMiddleware
 import boto3
+from botocore.exceptions import ClientError
+
+S3_BUCKET = "timestamp1000"
 
 app = FastAPI()
 
@@ -17,6 +20,8 @@ origins = [
     "http://localhost:8001",
     "http://127.0.0.1:8001",
     "http://127.0.0.1:8001/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*",
 ]
 
 app.add_middleware(
@@ -48,8 +53,8 @@ def read_item(item_id: int, q: Union[str, None] = None):
 @app.post("/sendHash/")
 def storeHash(item: Item):
     print(item.hash_str)
-    S3.Bucket("timestamp369").put_object(Key=item.hash_str, Body="")
-    object_summary = S3.ObjectSummary("timestamp369", item.hash_str)
+    S3.Bucket(S3_BUCKET).put_object(Key=item.hash_str, Body="")
+    object_summary = S3.ObjectSummary(S3_BUCKET, item.hash_str)
     print("timestamp: ", object_summary.last_modified)
     return item
 
@@ -59,6 +64,17 @@ def verifyHash(hash_str) -> Item:
     print(hash_str)
     # bucket = S3.Bucket("timestamp369")
     # bucket.get_key(hash_str)
-    object_summary = S3.ObjectSummary("timestamp369", hash_str)
-    print("timestamp: ", object_summary.last_modified)
-    return object_summary.last_modified
+    object_summary = S3.ObjectSummary(S3_BUCKET, hash_str)
+    try:
+        print("timestamp: ", object_summary.last_modified)
+        # return object_summary.last_modified
+    except ClientError as err:
+        print(err.args)
+        if "Not Found" in err.args[0]:
+            print("Not Found")
+            return "Not Found"
+        else:
+            print("Unknown Error")
+            return "Unknown Error"
+    else:
+        return object_summary.last_modified
